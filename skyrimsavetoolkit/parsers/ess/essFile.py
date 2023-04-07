@@ -1,7 +1,7 @@
 from mothpriest import *
 from .essBlocks import *
 from .essTypes import *
-from .compression import *
+from ..compression import *
 
 file = BlockParser(
     'file',
