@@ -37,7 +37,7 @@ def parse_ess(input_file: Path, output_file: Path):
     with open(output_file, 'w') as f:
         f.write(str(parsed))
     return
-    
+
 
 if __name__ == '__main__':
     parse_ess(**vars(parse_args()))

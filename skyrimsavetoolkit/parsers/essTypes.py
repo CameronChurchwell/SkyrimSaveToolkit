@@ -1,10 +1,6 @@
-from mothpriest import IntegerParser, BlockParser, ReferenceSizeStringParser, FixedSizeRawParser
+from mothpriest import *
+from mothpriest.macros import *
 from functools import partial
-
-# unsigned integer sizes
-uint8 = partial(IntegerParser, 1)
-uint16 = partial(IntegerParser, 2)
-uint32 = partial(IntegerParser, 4)
 
 # strings
 wstring = partial(BlockParser, elements=[
@@ -13,7 +9,17 @@ wstring = partial(BlockParser, elements=[
 ])
 
 # IDs
-refID = FixedSizeRawParser('RefID', 3)
+refID = partial(BlockParser, elements=[
+    BytesExpansionParser(
+        'splitter',
+        3, 
+        [2, 6, 8, 8],
+        parser=BlockParser('RefID', elements=[
+            uint8('type'),
+            FixedSizeRawParser('value', 3)
+        ])
+    )
+])
 
 formID = BlockParser('formID', [
     FixedSizeRawParser('objectID', 3),

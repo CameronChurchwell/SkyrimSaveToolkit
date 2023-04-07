@@ -75,7 +75,7 @@ change_form_type_flags = BlockParser('flags', [
 ])
 change_form_type = BytesExpansionParser('type', 1, [2, 6], change_form_type_flags)
 change_form_entry = BlockParser('changeFormEntry', [
-    refID,
+    refID('refid'),
     FixedSizeRawParser('changeFlags', 4),
     change_form_type,
     uint8('version'),
