@@ -16,21 +16,22 @@ file = BlockParser(
             'compressedSize',
             growingDecompress,
             compress,
-            # PDBParser('debug')
             BlockParser('compressedContent', [
                 uint8('formVersion'),
                 uint32('pluginInfoSize'),
                 plugin_info,
                 file_location,
-                ReferenceCountParser('globalDataTable1', ['fileLocationTable', 'globalDataTable1Count'], global_data_entry),
-                ReferenceCountParser('globalDataTable2', ['fileLocationTable', 'globalDataTable2Count'], global_data_entry),
-                ReferenceCountParser('changeForms', ['fileLocationTable', 'changeFormCount'], change_form_entry),
-                ReferenceCountParser('globalDataTable3', ['fileLocationTable', 'globalDataTable3Count'], global_data_entry),
+                global_data_table_1,
+                global_data_table_2,
+                change_forms,
+                global_data_table_3_debugged,
                 uint32('formIDArrayCount'),
-                ReferenceCountParser('formIDArray', 'formIDArrayCount', form_id_entry)
-                # ReferenceCountParser('debug', ['fileLocationTable', 'changeFormCount'], FixedSizeRawParser('', 1))
-                # DebugRemainderParser(100)
-                # RawParser('remainder')
+                ReferenceCountParser('formIDArray', 'formIDArrayCount', form_id_entry),
+                uint32('visitedWorldspaceArrayCount'),
+                ReferenceCountParser('visitedWorldspaceArray', 'visitedWorldspaceArrayCount', form_id_entry),
+                uint32('unknownTable3Size'),
+                ReferenceSizeRawParser('unknownTable3', 'unknownTable3Size'),
+                EOFParser('eof')
             ])
         )
     ],

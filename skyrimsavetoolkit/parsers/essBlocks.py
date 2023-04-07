@@ -1,4 +1,5 @@
 from mothpriest import *
+from mothpriest.references import *
 from .essTypes import *
 
 # single use blocks
@@ -96,3 +97,17 @@ form_id_entry = BlockParser('formID', [
     FixedSizeRawParser('objectID', 3),
     uint8('pluginID'),
 ])
+
+# tables
+
+global_data_table_1 = ReferenceCountParser('globalDataTable1', ['fileLocationTable', 'globalDataTable1Count'], global_data_entry)
+global_data_table_2 = ReferenceCountParser('globalDataTable2', ['fileLocationTable', 'globalDataTable2Count'], global_data_entry)
+change_forms = ReferenceCountParser('changeForms', ['fileLocationTable', 'changeFormCount'], change_form_entry)
+global_data_table_3 = ReferenceCountParser('globalDataTable3', ['fileLocationTable', 'globalDataTable3Count'], global_data_entry)
+
+global_data_table_3_size = DifferenceReference(
+    IDListReference(['fileLocationTable', 'formIDArrayCountOffset']),
+    IDListReference(['fileLocationTable', 'globalDataTable3Offset']) 
+)
+
+global_data_table_3_debugged = ReferenceSizeChunkParser('globalDataTable3Chunk', global_data_table_3_size, global_data_table_3)
