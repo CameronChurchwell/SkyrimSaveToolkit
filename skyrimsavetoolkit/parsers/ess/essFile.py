@@ -31,7 +31,7 @@ file = BlockParser(
                 ReferenceCountParser('visitedWorldspaceArray', 'visitedWorldspaceArrayCount', form_id_entry),
                 uint32('unknownTable3Size'),
                 ReferenceSizeRawParser('unknownTable3', 'unknownTable3Size'),
-                EOFParser('eof')
+                EOFParser()
             ])
         )
     ],
