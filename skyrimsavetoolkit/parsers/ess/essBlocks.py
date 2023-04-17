@@ -61,53 +61,60 @@ file_location = BlockParser(
 
 plugin_info = BlockParser('pluginInfo', [
     uint8('pluginInfoCount'),
-    ReferenceCountParser('pluginCountEntries', 'pluginInfoCount', wstring('plugin'))
+    ReferenceCountParser('pluginCountEntries', 'pluginInfoCount', wstring)
 ])
 
-global_data_entry = BlockParser('globalData', [
-    uint32('type'),
-    uint32('length'),
-    ReferenceSizeRawParser('value', 'length')
-])
+def global_data_entry(id: Union[str, int]):
+    return BlockParser(id, [
+        uint32('type'),
+        uint32('length'),
+        ReferenceSizeRawParser('value', 'length')
+    ])
 
-change_form_type_flags = BlockParser('flags', [
-    uint8('lengths_size'),
-    uint8('form_type')
-])
-change_form_type = BytesExpansionParser('type', 1, [2, 6], change_form_type_flags)
-change_form_entry = BlockParser('changeFormEntry', [
-    refID('refid'),
-    FixedSizeRawParser('changeFlags', 4),
-    change_form_type,
-    uint8('version'),
-    ReferenceMappedParser('length1', ['type', 'lengths_size'], {
-        0: uint8(None),
-        1: uint16(None),
-        2: uint32(None)
-    }),
-    ReferenceMappedParser('length2', ['type', 'lengths_size'], {
-        0: uint8(None),
-        1: uint16(None),
-        2: uint32(None)
-    }),
-    ReferenceSizeRawParser('data', 'length1')
-])
+def change_form_type_flags(id: Union[str, int]):
+    return BlockParser(id, [
+        uint8('lengths_size'),
+        uint8('form_type')
+    ])
 
-form_id_entry = BlockParser('formID', [
-    FixedSizeRawParser('objectID', 3),
-    uint8('pluginID'),
-])
+def change_form_type(id: Union[str, int]):
+    return BytesExpansionParser(id, 1, [2, 6], change_form_type_flags('flags'))
+
+def change_form_entry(id: Union[str, int]):
+    return BlockParser(id, [
+        refID('refid'),
+        FixedSizeRawParser('changeFlags', 4),
+        change_form_type('type'),
+        uint8('version'),
+        ReferenceMappedParser('length1', ['type', 'flags', 'lengths_size'], {
+            0: uint8('length1'),
+            1: uint16('length1'),
+            2: uint32('length1')
+        }),
+        ReferenceMappedParser('length2', ['type', 'flags', 'lengths_size'], {
+            0: uint8('length2'),
+            1: uint16('length2'),
+            2: uint32('length2')
+        }),
+        ReferenceSizeRawParser('data', 'length1')
+    ])
+
+def form_id_entry(id: Union[str, int]):
+    return BlockParser(id, [
+        FixedSizeHexParser('objectID', 3),
+        uint8('pluginID'),
+    ])
 
 # tables
 
 global_data_table_1 = ReferenceCountParser('globalDataTable1', ['fileLocationTable', 'globalDataTable1Count'], global_data_entry)
 global_data_table_2 = ReferenceCountParser('globalDataTable2', ['fileLocationTable', 'globalDataTable2Count'], global_data_entry)
 change_forms = ReferenceCountParser('changeForms', ['fileLocationTable', 'changeFormCount'], change_form_entry)
-global_data_table_3 = ReferenceCountParser('globalDataTable3', ['fileLocationTable', 'globalDataTable3Count'], global_data_entry)
+global_data_table_3 = ReferenceCountParser('globalDataTable3', ['_parent', 'fileLocationTable', 'globalDataTable3Count'], global_data_entry)
 
 global_data_table_3_size = DifferenceReference(
     IDListReference(['fileLocationTable', 'formIDArrayCountOffset']),
     IDListReference(['fileLocationTable', 'globalDataTable3Offset']) 
 )
 
-global_data_table_3_debugged = ReferenceSizeChunkParser('globalDataTable3Chunk', global_data_table_3_size, global_data_table_3)
+global_data_table_3_debugged = ReferenceSizeChunkParser('globalDataTable3Chunk', global_data_table_3_size, [global_data_table_3])

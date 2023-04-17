@@ -4,7 +4,7 @@ from .essTypes import *
 from ..compression import *
 
 file = BlockParser(
-    'file',
+    'root',
     [
         header_info,
         header,
@@ -16,7 +16,7 @@ file = BlockParser(
             'compressedSize',
             growingDecompress,
             compress,
-            BlockParser('compressedContent', [
+            [
                 uint8('formVersion'),
                 uint32('pluginInfoSize'),
                 plugin_info,
@@ -24,6 +24,7 @@ file = BlockParser(
                 global_data_table_1,
                 global_data_table_2,
                 change_forms,
+                # PDBParser('pdb'),
                 global_data_table_3_debugged,
                 uint32('formIDArrayCount'),
                 ReferenceCountParser('formIDArray', 'formIDArrayCount', form_id_entry),
@@ -32,7 +33,7 @@ file = BlockParser(
                 uint32('unknownTable3Size'),
                 ReferenceSizeRawParser('unknownTable3', 'unknownTable3Size'),
                 EOFParser()
-            ])
+            ]
         )
     ],
 )

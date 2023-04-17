@@ -1,27 +1,31 @@
 from mothpriest import *
 from mothpriest.macros import *
 from functools import partial
+from typing import Union
 
 # strings
-wstring = partial(BlockParser, elements=[
-    uint16('length'), 
-    ReferenceSizeStringParser('value', 'length')
-])
+def wstring(id: Union[int, str]):
+    return BlockParser(id, elements=[
+        uint16('length'),
+        ReferenceSizeStringParser('value', 'length')
+    ])
 
 # IDs
-refID = partial(BlockParser, elements=[
-    BytesExpansionParser(
-        'splitter',
-        3, 
-        [2, 6, 8, 8],
-        parser=BlockParser('RefID', elements=[
-            uint8('type'),
-            FixedSizeRawParser('value', 3)
-        ])
-    )
-])
+def refID(id: Union[int, str]):
+    return BlockParser(id, elements=[
+        BytesExpansionParser(
+            'splitter',
+            3,
+            [2, 22],
+            parser=BlockParser('RefID', elements=[
+                uint8('type'),
+                FixedSizeRawParser('value', 3)
+            ])
+        )
+    ])
 
-formID = BlockParser('formID', [
-    FixedSizeRawParser('objectID', 3),
-    uint8('pluginID')
-])
+def formID(id: Union[int, str]): 
+    return BlockParser(id, [
+        FixedSizeRawParser('objectID', 3),
+        uint8('pluginID')
+    ])
