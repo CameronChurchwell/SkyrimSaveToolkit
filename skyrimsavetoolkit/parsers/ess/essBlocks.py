@@ -8,13 +8,12 @@ header_info = BlockParser(
     'headerInfo',
     [
         MagicParser('TESV_SAVEGAME', 'magic'),
-        IntegerParser(4, 'headerSize')
+        uint32('headerSize')
     ],
 )
 
-header = ReferenceSizeBlockParser(
+header = BlockParser(
     'header',
-    ['headerInfo', 'headerSize'],
     [
         uint32('version'),
         uint32('saveNumber'),
@@ -31,12 +30,13 @@ header = ReferenceSizeBlockParser(
         uint32('screenshotWidth'),
         uint32('screenshotHeight'),
         uint16('compressionType')
-    ]
+    ],
+    ['headerInfo', 'headerSize'],
 )
 
-screenshot = ReferenceSizeImageParser(
-    width_id=['header', 'screenshotWidth'],
-    height_id=['header', 'screenshotHeight'],
+screenshot = ImageParser(
+    width=['header', 'screenshotWidth'],
+    height=['header', 'screenshotHeight'],
     id='screenshotData'
 )
 
@@ -53,7 +53,7 @@ file_location = BlockParser(
         uint32('globalDataTable2Count'),
         uint32('globalDataTable3Count'),
         uint32('changeFormCount'),
-        FixedPaddingParser(15*4)
+        ReferenceSizeParser('padding', 15*4)
     ]
 )
 
@@ -68,11 +68,12 @@ def global_data_entry(id: Union[str, int]):
     return BlockParser(id, [
         uint32('type'),
         uint32('length'),
-        ReferenceSizeRawParser('value', 'length')
+        ReferenceSizeParser('value', 'length')
     ])
 
 def change_form_type_flags(id: Union[str, int]):
     return BlockParser(id, [
+        # PDBParser('debug'),
         uint8('lengths_size'),
         uint8('form_type')
     ])
@@ -83,7 +84,7 @@ def change_form_type(id: Union[str, int]):
 def change_form_entry(id: Union[str, int]):
     return BlockParser(id, [
         refID('refid'),
-        FixedSizeRawParser('changeFlags', 4),
+        ReferenceSizeParser('changeFlags', 4),
         change_form_type('type'),
         uint8('version'),
         ReferenceMappedParser('length1', ['type', 'flags', 'lengths_size'], {
@@ -96,13 +97,7 @@ def change_form_entry(id: Union[str, int]):
             1: uint16('length2'),
             2: uint32('length2')
         }),
-        ReferenceSizeRawParser('data', 'length1')
-    ])
-
-def form_id_entry(id: Union[str, int]):
-    return BlockParser(id, [
-        FixedSizeHexParser('objectID', 3),
-        uint8('pluginID'),
+        ReferenceSizeParser('data', 'length1'),
     ])
 
 # tables
@@ -117,4 +112,4 @@ global_data_table_3_size = DifferenceReference(
     IDListReference(['fileLocationTable', 'globalDataTable3Offset']) 
 )
 
-global_data_table_3_debugged = ReferenceSizeChunkParser('globalDataTable3Chunk', global_data_table_3_size, [global_data_table_3])
+global_data_table_3_debugged = BlockParser('globalDataTable3Chunk', [global_data_table_3], global_data_table_3_size)

@@ -7,7 +7,7 @@ from typing import Union
 def wstring(id: Union[int, str]):
     return BlockParser(id, elements=[
         uint16('length'),
-        ReferenceSizeStringParser('value', 'length')
+        StringParser('value', 'length')
     ])
 
 # IDs
@@ -19,13 +19,13 @@ def refID(id: Union[int, str]):
             [2, 22],
             parser=BlockParser('RefID', elements=[
                 uint8('type'),
-                FixedSizeRawParser('value', 3)
+                ReferenceSizeParser('value', 3)
             ])
         )
     ])
 
 def formID(id: Union[int, str]): 
     return BlockParser(id, [
-        FixedSizeRawParser('objectID', 3),
+        HexParser('objectID', 3),
         uint8('pluginID')
     ])

@@ -24,14 +24,13 @@ file = BlockParser(
                 global_data_table_1,
                 global_data_table_2,
                 change_forms,
-                # PDBParser('pdb'),
                 global_data_table_3_debugged,
                 uint32('formIDArrayCount'),
-                ReferenceCountParser('formIDArray', 'formIDArrayCount', form_id_entry),
+                ReferenceCountParser('formIDArray', 'formIDArrayCount', formID),
                 uint32('visitedWorldspaceArrayCount'),
-                ReferenceCountParser('visitedWorldspaceArray', 'visitedWorldspaceArrayCount', form_id_entry),
+                ReferenceCountParser('visitedWorldspaceArray', 'visitedWorldspaceArrayCount', formID),
                 uint32('unknownTable3Size'),
-                ReferenceSizeRawParser('unknownTable3', 'unknownTable3Size'),
+                ReferenceSizeParser('unknownTable3', 'unknownTable3Size'),
                 EOFParser()
             ]
         )

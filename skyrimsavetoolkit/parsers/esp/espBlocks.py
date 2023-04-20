@@ -8,13 +8,13 @@ tes4_header = BlockParser('root', [
 ])
 
 record = BlockParser('record', [
-    FixedSizeRawParser('type', 4),
+    ReferenceSizeParser('type', 4),
     uint32('dataSize'),
-    FixedSizeRawParser('flags', 4),
-    FixedSizeRawParser('recordID', 4),
+    ReferenceSizeParser('flags', 4),
+    ReferenceSizeParser('recordID', 4),
     uint16('timestamp'),
     uint16('versionControl'),
     uint16('internalVersion'),
     uint16('unknown'),
-    ReferenceSizeRawParser('data', 'dataSize')
+    ReferenceSizeParser('data', 'dataSize')
 ])

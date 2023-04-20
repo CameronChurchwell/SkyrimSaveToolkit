@@ -1,5 +1,4 @@
 from pathlib import Path
-from pathlib import Path
 from .skse import file as skseFileParser
 from .ess import file as essFileParser
 from .esp import file as espFileParser
@@ -16,15 +15,14 @@ def parse_file(input_file: Path, output_file: Path, there_and_back: bool):
     else:
         raise ValueError(f'extension {extension} does not match any known extension')
 
-    import pdb; pdb.set_trace()
-
-    if output_file is None:
-        print(parsed)
-        return
-    
     if there_and_back:
         if extension == '.ess':
-            unparse_ess(output_file, parsed)
+            # unparse_ess(output_file, parsed)
+            buffer = BytesIO()
+            essFileParser.unparse(buffer)
+            buffer.seek(0)
+            with open(output_file, 'wb') as f:
+                f.write(buffer.read())
         return
 
     with open(output_file, 'w') as f:
@@ -48,7 +46,7 @@ def unparse_ess(output_file: Path, record):
     if not 'root' in record:
         record = {'root': record}
 
-    essFileParser.updateRecord(record)
+    essFileParser.updateRecord
     buffer = BytesIO()
     essFileParser.unparse(buffer)
     buffer.seek(0)
