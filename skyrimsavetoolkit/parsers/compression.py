@@ -11,4 +11,5 @@ def growingDecompress(data: bytes, size=None):
     
 def compress(record):
     """compress using lz4 block"""
+    import pdb; pdb.set_trace()
     return lz4.block.compress(record, store_size=False)

@@ -35,9 +35,9 @@ header = BlockParser(
 )
 
 screenshot = ImageParser(
+    id='screenshotData',
     width=['header', 'screenshotWidth'],
     height=['header', 'screenshotHeight'],
-    id='screenshotData'
 )
 
 file_location = BlockParser(
@@ -53,7 +53,7 @@ file_location = BlockParser(
         uint32('globalDataTable2Count'),
         uint32('globalDataTable3Count'),
         uint32('changeFormCount'),
-        ReferenceSizeParser('padding', 15*4)
+        Parser('padding', 15*4)
     ]
 )
 
@@ -61,14 +61,14 @@ file_location = BlockParser(
 
 plugin_info = BlockParser('pluginInfo', [
     uint8('pluginInfoCount'),
-    ReferenceCountParser('pluginCountEntries', 'pluginInfoCount', wstring)
+    ReferenceCountParser('pluginInfoEntries', 'pluginInfoCount', wstring)
 ])
 
 def global_data_entry(id: Union[str, int]):
     return BlockParser(id, [
         uint32('type'),
         uint32('length'),
-        ReferenceSizeParser('value', 'length')
+        Parser('value', 'length')
     ])
 
 def change_form_type_flags(id: Union[str, int]):
@@ -84,7 +84,7 @@ def change_form_type(id: Union[str, int]):
 def change_form_entry(id: Union[str, int]):
     return BlockParser(id, [
         refID('refid'),
-        ReferenceSizeParser('changeFlags', 4),
+        Parser('changeFlags', 4),
         change_form_type('type'),
         uint8('version'),
         ReferenceMappedParser('length1', ['type', 'flags', 'lengths_size'], {
@@ -97,7 +97,7 @@ def change_form_entry(id: Union[str, int]):
             1: uint16('length2'),
             2: uint32('length2')
         }),
-        ReferenceSizeParser('data', 'length1'),
+        Parser('data', 'length1'),
     ])
 
 # tables

@@ -19,7 +19,7 @@ def refID(id: Union[int, str]):
             [2, 22],
             parser=BlockParser('RefID', elements=[
                 uint8('type'),
-                ReferenceSizeParser('value', 3)
+                Parser('value', 3)
             ])
         )
     ])
