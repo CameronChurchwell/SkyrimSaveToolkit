@@ -13,6 +13,7 @@ def wstring(id: Union[int, str]):
 # IDs
 def refID(id: Union[int, str]):
     return BlockParser(id, elements=[
+        # PDBParser(),
         BytesExpansionParser(
             'splitter',
             3,

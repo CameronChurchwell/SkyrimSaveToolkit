@@ -13,7 +13,7 @@ def decompress_file(input_file: Path, output_file: Path):
     
     decompress(parser)
 
-    with open(output_file, 'wb') as f:
+    with open(output_file, 'wb+') as f:
         parser.unparse(f)
 
 def decompress(parser: Parser):
@@ -24,4 +24,5 @@ def decompress(parser: Parser):
     # this also updates the compressionType field and removes the compression lengths``
     switchParser = parser.getReference('mainContent')
     assert isinstance(switchParser, ReferenceMappedParser)
-    switchParser.switchActive(0)
+    # import pdb; pdb.set_trace()
+    switchParser.setKey(0)

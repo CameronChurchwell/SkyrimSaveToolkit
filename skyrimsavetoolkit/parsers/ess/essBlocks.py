@@ -73,7 +73,6 @@ def global_data_entry(id: Union[str, int]):
 
 def change_form_type_flags(id: Union[str, int]):
     return BlockParser(id, [
-        # PDBParser('debug'),
         uint8('lengths_size'),
         uint8('form_type')
     ])
@@ -102,14 +101,7 @@ def change_form_entry(id: Union[str, int]):
 
 # tables
 
-global_data_table_1 = ReferenceCountParser('globalDataTable1', ['fileLocationTable', 'globalDataTable1Count'], global_data_entry)
-global_data_table_2 = ReferenceCountParser('globalDataTable2', ['fileLocationTable', 'globalDataTable2Count'], global_data_entry)
-change_forms = ReferenceCountParser('changeForms', ['fileLocationTable', 'changeFormCount'], change_form_entry)
-global_data_table_3 = ReferenceCountParser('globalDataTable3', ['_parent', 'fileLocationTable', 'globalDataTable3Count'], global_data_entry)
-
-global_data_table_3_size = DifferenceReference(
-    IDListReference(['fileLocationTable', 'formIDArrayCountOffset']),
-    IDListReference(['fileLocationTable', 'globalDataTable3Offset']) 
-)
-
-global_data_table_3_debugged = BlockParser('globalDataTable3Chunk', [global_data_table_3], global_data_table_3_size)
+global_data_table_1 = ReferenceCountParser('globalDataTable1', ['fileLocationTable', 'globalDataTable1Count'], global_data_entry, position=['fileLocationTable', 'globalDataTable1Offset'])
+global_data_table_2 = ReferenceCountParser('globalDataTable2', ['fileLocationTable', 'globalDataTable2Count'], global_data_entry, position=['fileLocationTable', 'globalDataTable2Offset'])
+change_forms = ReferenceCountParser('changeForms', ['fileLocationTable', 'changeFormCount'], change_form_entry, position=['fileLocationTable', 'changeFormsOffset'])
+global_data_table_3 = ReferenceCountParser('globalDataTable3', ['fileLocationTable', 'globalDataTable3Count'], global_data_entry, position=['fileLocationTable', 'globalDataTable3Offset'])

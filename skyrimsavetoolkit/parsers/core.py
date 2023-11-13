@@ -3,6 +3,7 @@ from .skse import file as skseFileParser
 from .ess import file as essFileParser
 from .esp import file as espFileParser
 from io import BytesIO
+from mothpriest.parsers import Parser
 
 def parse_file(input_file: Path, output_file: Path, there_and_back: bool):
     extension = input_file.suffix.lower()
@@ -30,7 +31,7 @@ def parse_file(input_file: Path, output_file: Path, there_and_back: bool):
     return
 
 # TODO refactor to remove need for these somewhat redundant functions
-def parse_ess(input_file: Path):
+def parse_ess(input_file: Path) -> Parser:
     """Read and parse an ess file from a path"""
 
     with open(input_file, 'rb') as f:

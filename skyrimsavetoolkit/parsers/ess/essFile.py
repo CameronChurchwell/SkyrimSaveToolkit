@@ -8,24 +8,24 @@ main_content_elements = [
     uint32('pluginInfoSize'),
     plugin_info,
     file_location,
-    # ReferencePositionParser('globalDataTable1Start', ['fileLocationTable', 'globalDataTable1Offset']),
     global_data_table_1,
-    # ReferencePositionParser('globalDataTable2Start', ['fileLocationTable', 'globalDataTable2Offset']),
     global_data_table_2,
-    # ReferencePositionParser('changeFormsStart', ['fileLocationTable', 'changeFormsOffset']),
     change_forms,
-    # ReferencePositionParser('globalDataTable3Start', ['fileLocationTable', 'globalDataTable3Offset']),
-    global_data_table_3_debugged,
-    # ReferencePositionParser('formIDArrayCountStart', ['fileLocationTable', 'formIDArrayCountOffset']),
-    uint32('formIDArrayCount'),
+    global_data_table_3,
+    # Parser('bug_catch', size=8), # bugged global_data_table_3 1005 entry
+    uint32('formIDArrayCount', position=['fileLocationTable', 'formIDArrayCountOffset']),
     ReferenceCountParser('formIDArray', 'formIDArrayCount', formID),
     uint32('visitedWorldspaceArrayCount'),
     ReferenceCountParser('visitedWorldspaceArray', 'visitedWorldspaceArrayCount', formID),
-    # ReferencePositionParser('unknownTable3Start', ['fileLocationTable', 'unknownTable3Offset']),
-    uint32('unknownTable3Size'),
+    uint32('unknownTable3Size', position=['fileLocationTable', 'unknownTable3Offset']),
     Parser('unknownTable3', 'unknownTable3Size'),
     EOFParser()
 ]
+
+main_content = BlockParser(
+    'main_content', main_content_elements, 
+    size=['_parent', '_parent', 'uncompressedSize']
+)
 
 file = BlockParser(
     'root',
@@ -33,23 +33,35 @@ file = BlockParser(
         header_info,
         header,
         screenshot,
-        ReferenceMappedParser('mainContent', ['header', 'compressionType'], {
-            0: BlockParser('uncompressed', main_content_elements),
-            1: ErrorParser('zlib', ValueError('Did not expect zlib compression')),
-            2: BlockParser('lz4', [
-                SourceDeletingParser('compressionSizes', [
+        ReferenceMappedParser(
+            'mainContent',
+            ['header', 'compressionType'],
+            {
+                0: BlockParser('uncompressed', main_content_elements),
+                0: main_content,
+                1: ErrorParser('zlib', ValueError('Did not expect zlib compression')),
+                2: BlockParser('lz4', [
                     uint32('uncompressedSize'),
                     uint32('compressedSize'),
-                ]),
-                TransformationParser(
-                    'compressedContainer',
-                    ['compressionSizes', 'compressedSize'],
-                    growingDecompress,
-                    compress,
-                    main_content_elements,
-                    in_place=True
-                )
-            ])
-        }),
+                    BackFoldingParser(
+                        'compressedContainer',
+                        [
+                            TransformationParser(
+                                'compressedData',
+                                ['_parent', 'compressedSize'],
+                                growingDecompress,
+                                compress,
+                                [
+                                    main_content
+                                ],
+                                in_place=True
+                            )
+                        ],
+                        foldSize = 8
+                    )
+                ])
+            },
+            transfer_record=False
+        ),
     ],
 )
