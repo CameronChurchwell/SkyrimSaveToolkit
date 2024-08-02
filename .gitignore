@@ -1,5 +1,6 @@
 # local temp files for testing
 temp/
+temp*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

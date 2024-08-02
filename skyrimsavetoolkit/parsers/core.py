@@ -1,6 +1,6 @@
 from pathlib import Path
 from .skse import file as skseFileParser
-from .ess import file as essFileParser
+from .ess import essFile as essFileParser
 from .esp import file as espFileParser
 from io import BytesIO
 from mothpriest.parsers import Parser
@@ -37,9 +37,10 @@ def parse_ess(input_file: Path) -> Parser:
     with open(input_file, 'rb') as f:
         input_content = f.read()
 
-    essFileParser.parse(BytesIO(input_content))
+    parser = essFileParser()
+    parser.parse(BytesIO(input_content))
 
-    return essFileParser
+    return parser
 
 def unparse_ess(output_file: Path, record):
     """Unparse a record back into an ess file"""
@@ -61,9 +62,9 @@ def parse_skse(input_file: Path):
     with open(input_file, 'rb') as f:
         input_content = f.read()
 
-    parsed = skseFileParser.parse(BytesIO(input_content))
+    skseFileParser.parse(BytesIO(input_content))
 
-    return parsed
+    return skseFileParser
 
 def parse_esp(input_file: Path):
     """Read and parse an esp file from a path"""

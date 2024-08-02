@@ -1,5 +1,6 @@
 from mothpriest import *
 from mothpriest.macros import *
+from functools import partial
 
 header = BlockParser('header', [
     MagicParser('SKSE', 'magic'),
@@ -9,26 +10,26 @@ header = BlockParser('header', [
     uint32('numPlugins')
 ])
 
-plugin_header = BlockParser('pluginHeader', [
-    uint32('signature'),
-    uint32('numChunks'),
-    uint32('length')
-])
+def chunk(id):
+    chunk_header = BlockParser('chunkHeader', [
+        uint32('type'),
+        uint32('version'),
+        uint32('length')
+    ])
 
-chunk_header = BlockParser('chunkHeader', [
-    uint32('type'),
-    uint32('version'),
-    uint32('length')
-])
+    return BlockParser(id, [
+        chunk_header,
+        ReferenceCountParser('data', ['chunkHeader', 'length'], uint8)
+    ])
 
-plugin_data = uint8('data')
 
-chunk = BlockParser('chunk', [
-    chunk_header,
-    ReferenceCountParser('data', ['chunkHeader', 'length'], plugin_data)
-])
-
-plugin = BlockParser('plugin', [
-    plugin_header,
-    ReferenceCountParser('chunk', ['pluginHeader', 'numChunks'], chunk)
-])
+def plugin(id):
+    plugin_header = BlockParser('pluginHeader', [
+        uint32('signature'),
+        uint32('numChunks'),
+        uint32('length')
+    ])
+    return BlockParser(id, [
+        plugin_header,
+        ReferenceCountParser('chunks', ['pluginHeader', 'numChunks'], chunk)
+    ])

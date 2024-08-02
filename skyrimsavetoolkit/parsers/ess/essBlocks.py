@@ -64,6 +64,11 @@ plugin_info = BlockParser('pluginInfo', [
     ReferenceCountParser('pluginInfoEntries', 'pluginInfoCount', wstring)
 ])
 
+light_plugin_info = BlockParser('lightPluginInfo', [
+    uint16('lightPluginInfoCount'),
+    ReferenceCountParser('lightPluginInfoEntries', 'lightPluginInfoCount', wstring)
+])
+
 def global_data_entry(id: Union[str, int]):
     return BlockParser(id, [
         uint32('type'),
